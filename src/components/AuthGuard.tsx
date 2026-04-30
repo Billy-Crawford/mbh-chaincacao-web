@@ -1,49 +1,46 @@
-// src/components/AuthGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-export function AuthGuard({
+export default function AuthGuard({
   children,
   allowedRoles,
 }: {
   children: React.ReactNode;
-  allowedRoles?: string[];
+  allowedRoles: string[];
 }) {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // On récupère les infos
+  const [mounted, setMounted] = useState(false);
+
+  // On récupère les cookies
   const token = Cookies.get("access_token");
-  const role = Cookies.get("role")?.toLowerCase();
-  const rolesString = allowedRoles?.join(",");
+  const role = Cookies.get("role");
 
   useEffect(() => {
-    // 1. Signaler que le composant est monté (client-side)
-    setIsMounted(true);
+    setMounted(true);
 
-    // 2. Logique de redirection
+    // 1. Si pas de token -> Login
     if (!token) {
-      router.push("/login");
+      router.replace("/login");
       return;
     }
 
-    if (rolesString) {
-      const allowedList = rolesString.split(",").map(r => r.toLowerCase());
-      if (!allowedList.includes(role || "")) {
-        router.push("/login");
+    // 2. Si le rôle n'est pas autorisé -> Login
+    if (allowedRoles && role) {
+      const isAuthorized = allowedRoles.map(r => r.toLowerCase()).includes(role.toLowerCase());
+      if (!isAuthorized) {
+        router.replace("/login");
       }
     }
-  }, [token, role, rolesString, router]);
+  }, [token, role, router, allowedRoles]);
 
-  // SOLUTION AU HYDRATION ERROR : 
-  // Si on est encore sur le serveur (isMounted est false), on ne rend RIEN.
-  // Cela garantit que le HTML serveur est vide et que le client prend le relais proprement.
-  if (!isMounted || !token) {
+  // Pendant que le composant se "monte" ou si pas de token, on affiche rien
+  if (!mounted || !token) {
     return null; 
   }
 
   return <>{children}</>;
 }
+

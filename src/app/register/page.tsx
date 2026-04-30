@@ -1,115 +1,179 @@
-// src/app/register/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie"; // Import direct pour simuler la session
+import { authService } from "@/services/auth.service";
 
 export default function RegisterPage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
-    nom: "",
-    telephone: "+228 ",
-    pin: "",
+    username: "",
+    email: "",
+    password: "",
     role: "cooperative",
+    telephone: "+228 ",
+    village: "",
+    region: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!form.nom || form.pin.length < 4) {
-      setError("Veuillez remplir tous les champs (PIN à 4 chiffres)");
-      return;
-    }
-
     setLoading(true);
     setError("");
 
-    // --- SIMULATION BACKEND ---
-    setTimeout(() => {
-      console.log("Compte simulé créé:", form);
-      
-      // On redirige vers le login sans appeler l'API
-      setLoading(false);
+    try {
+      // Nettoyage simple du téléphone avant envoi
+      const payload = { ...form, telephone: form.telephone.trim() };
+      await authService.register(payload);
+      // Redirection vers le login après succès
       router.push("/login");
-    }, 1000); 
-    // --------------------------
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err.response?.data?.detail || 
+        "Erreur lors de l'inscription. Vérifiez que le nom d'utilisateur n'est pas déjà pris."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-[#f6f1e7]">
-      <div className="w-full max-w-md p-8 rounded-2xl shadow-xl bg-white border border-[#e7d7c1]">
+    <div className="min-h-screen flex items-center justify-center bg-[#f6f1e7] py-12 px-4">
+      <div className="w-full max-w-lg p-8 rounded-2xl shadow-xl bg-white border border-[#e7d7c1]">
         
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-black mb-1 text-[#5c3a21]">Bienvenue</h1>
+          <h1 className="text-3xl font-black mb-1 text-[#5c3a21]">ChainCacao</h1>
           <p className="text-xs font-medium uppercase tracking-widest text-[#2f6b3f]">
-            Mode Simulation (Sans Backend)
+            Création de compte backend
           </p>
         </div>
 
         <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Nom complet</label>
-            <input
-              className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
-              placeholder="Ex: Oumarou Billy"
-              value={form.nom}
-              onChange={(e) => setForm({ ...form, nom: e.target.value })}
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* USERNAME */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Nom d'utilisateur</label>
+              <input
+                name="username"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                placeholder="ex: aminata_coop"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* EMAIL */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Email</label>
+              <input
+                name="email"
+                type="email"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                placeholder="ex: contact@cacao.tg"
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Téléphone</label>
-            <input
-              className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
-              value={form.telephone}
-              onChange={(e) => setForm({ ...form, telephone: e.target.value })}
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* TELEPHONE */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Téléphone</label>
+              <input
+                name="telephone"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                value={form.telephone}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* PASSWORD */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Mot de passe</label>
+              <input
+                name="password"
+                type="password"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                placeholder="••••••••"
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">PIN (4 chiffres)</label>
-            <input
-              className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl text-center text-xl tracking-[1em] font-bold"
-              type="password"
-              maxLength={4}
-              value={form.pin}
-              onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "") })}
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* VILLAGE */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Village / Ville</label>
+              <input
+                name="village"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                placeholder="ex: Kpalimé"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* REGION */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Région</label>
+              <input
+                name="region"
+                className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl outline-none text-sm"
+                placeholder="ex: Plateaux"
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
+          {/* ROLE */}
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Type de profil</label>
             <select
-              className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl text-sm appearance-none cursor-pointer"
+              name="role"
+              className="w-full p-3 bg-gray-50 border border-[#e7d7c1] rounded-xl text-sm appearance-none cursor-pointer outline-none"
               value={form.role}
-              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              onChange={handleChange}
             >
-              <option value="cooperative">Coopérative</option>
-              <option value="exportateur">Exportateur</option>
+              <option value="cooperative">Coopérative (Collecte)</option>
+              <option value="exportateur">Exportateur (Export)</option>
             </select>
           </div>
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-center">
+              <p className="text-xs text-red-600 font-medium">{error}</p>
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-4 rounded-xl font-bold text-white mt-2"
+            className="w-full p-4 rounded-xl font-bold text-white shadow-lg transition-all active:scale-[0.98]"
             style={{ background: loading ? "#8b6b5c" : "#5c3a21" }}
           >
-            {loading ? "Création..." : "Créer mon compte"}
+            {loading ? "Traitement..." : "Créer le compte"}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-50 text-center text-sm">
-          Déjà inscrit ? <button onClick={() => router.push("/login")} className="font-bold text-[#2f6b3f]">Se connecter</button>
-        </div>
+        <p className="mt-6 text-center text-sm text-gray-500">
+          Déjà un compte ?{" "}
+          <button onClick={() => router.push("/login")} className="font-bold text-[#2f6b3f] hover:underline">
+            Se connecter
+          </button>
+        </p>
       </div>
     </div>
   );

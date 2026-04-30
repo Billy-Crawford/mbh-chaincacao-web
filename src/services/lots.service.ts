@@ -1,18 +1,14 @@
 import api from "@/lib/api";
 
 export const lotsService = {
-  getAll: async () => {
-    const res = await api.get("/api/lots/");
-    return res.data.results;
+  // On utilise "getAll" pour matcher avec ton hook useLots
+  async getAll() {
+    const response = await api.get("/api/lots/");
+    return response.data;
   },
-
-  getOne: async (id: string) => {
-    const res = await api.get(`/api/lots/${id}/`);
-    return res.data;
-  },
-
-  create: async (data: any) => {
-    const res = await api.post("/api/lots/", data);
-    return res.data;
-  },
+  
+  async getOne(id: string) {
+    const response = await api.get(`/api/lots/${id}/`);
+    return response.data;
+  }
 };

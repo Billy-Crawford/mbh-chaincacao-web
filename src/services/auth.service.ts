@@ -2,40 +2,34 @@ import api from "@/lib/api";
 import Cookies from "js-cookie";
 
 export const authService = {
-  login: async (telephone: string, pin: string) => {
-    // MOCK LOCAL POUR TEST FRONTEND
-    if (pin === "1234") {
-      const fakeData = {
-        access: "fake_token_123",
-        refresh: "fake_refresh_123",
-        role: "cooperative",
-        nom: "Kofi Coop",
-      };
+  async register(userData: any) {
+    const response = await api.post("/api/auth/register/", userData);
+    return response.data;
+  },
 
-      Cookies.set("access_token", fakeData.access);
-      Cookies.set("refresh_token", fakeData.refresh);
-      Cookies.set("role", fakeData.role);
-      Cookies.set("nom", fakeData.nom);
+  async login(credentials: { username: string; password: any }) {
+  const response = await api.post("/api/auth/login/", credentials);
+  
+  // On extrait 'access' à la racine, et 'role' depuis l'objet 'user'
+  const { access, user } = response.data;
+  const role = user?.role;
 
-      return fakeData;
+  if (access) {
+    Cookies.set("access_token", access, { expires: 7, sameSite: 'lax' });
+    
+    if (role) {
+      // On stocke le rôle en minuscule pour éviter les surprises
+      Cookies.set("role", role.toLowerCase(), { expires: 7, sameSite: 'lax' });
     }
+  }
 
-    throw {
-      response: {
-        data: { detail: "Numéro ou PIN incorrect" },
-      },
-    };
-  },
+  return response.data; // On retourne tout l'objet au cas où la page en a besoin
+},
 
-  logout: () => {
+  logout() {
     Cookies.remove("access_token");
-    Cookies.remove("refresh_token");
     Cookies.remove("role");
-    Cookies.remove("nom");
-
     window.location.href = "/login";
-  },
-
-  getRole: () => Cookies.get("role"),
-  getToken: () => Cookies.get("access_token"),
+  }
 };
+
