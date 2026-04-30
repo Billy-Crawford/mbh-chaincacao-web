@@ -1,4 +1,4 @@
-// src/hooks/useLots.ts
+// src/hooks/useLot.ts
 "use client";
 
 import { useQuery } from "@tanstack/react-query";

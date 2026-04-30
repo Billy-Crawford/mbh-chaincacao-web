@@ -1,3 +1,4 @@
+// src/services/lots.service.ts
 import api from "@/lib/api";
 
 export const lotsService = {
@@ -12,3 +13,4 @@ export const lotsService = {
     return response.data;
   }
 };
+
