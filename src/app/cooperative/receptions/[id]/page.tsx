@@ -7,172 +7,103 @@ import { useState } from "react";
 import api from "@/lib/api";
 
 export default function LotDetail() {
-  const params = useParams();
+  const { id } = useParams();
   const router = useRouter();
 
-  const id = params?.id as string;
+  const { data: lot, isLoading } = useLot(id as string);
 
-  const { data: lot, isLoading } = useLot(id);
-
-  const [poidsVerifie, setPoidsVerifie] = useState<string>("");
+  const [poidsVerifie, setPoidsVerifie] = useState("");
   const [loading, setLoading] = useState(false);
-  const [txHash, setTxHash] = useState<string>("");
+  const [txHash, setTxHash] = useState("");
 
-  // =========================
-  // LOADING / ERROR STATES
-  // =========================
   if (isLoading) {
-    return (
-      <p className="p-6 text-center animate-pulse">
-        Chargement des données du lot...
-      </p>
-    );
+    return <p className="p-6 text-center animate-pulse">Chargement...</p>;
   }
 
   if (!lot) {
-    return (
-      <p className="p-6 text-center text-red-500 font-bold">
-        Lot introuvable.
-      </p>
-    );
+    return <p className="p-6 text-center text-red-500">Lot introuvable</p>;
   }
 
-  // =========================
-  // SAFE VALUES
-  // =========================
-  const poidsDeclare = Number(lot.poids_kg || 0);
-  const poidsVerifieNum = Number(poidsVerifie || 0);
+  const poidsDeclare = Number(lot.poids_kg);
 
-  const variation =
-    poidsDeclare > 0 && poidsVerifieNum > 0
-      ? Math.abs(poidsVerifieNum - poidsDeclare) / poidsDeclare
+  const ecart =
+    poidsVerifie
+      ? Math.abs(Number(poidsVerifie) - poidsDeclare)
       : 0;
 
-  // =========================
-  // ETAPE LOGIQUE
-  // =========================
-  const getEtape = (): string => {
-    const statut = lot.statut;
-
-    if (statut === "cree") return "ferme_cooperative";
-    if (statut === "en_transit") return "cooperative_transformateur";
-
-    return "ferme_cooperative";
-  };
-
-  // =========================
-  // VALIDATION API
-  // =========================
   const handleValider = async () => {
-    if (!poidsVerifie) {
-      alert("Veuillez saisir le poids vérifié.");
-      return;
-    }
+    if (!poidsVerifie) return alert("Poids requis");
 
     setLoading(true);
 
     try {
-      const payload = {
-        lot: String(lot.id), // 🔥 UUID string obligatoire
-        poids_verifie: poidsVerifieNum,
-        etape: getEtape(),
-        notes: "Réception coopérative - pesée contrôlée",
-      };
+      const res = await api.post("/api/transferts/", {
+        lot: lot.id,
+        poids_verifie: Number(poidsVerifie),
+        etape: "cooperative_transformateur",
+        notes: "Réception validée coopérative",
+      });
 
-      console.log("PAYLOAD TRANSFERT:", payload);
+      setTxHash(res.data?.transfert?.tx_hash);
 
-      const res = await api.post("/api/transferts/", payload);
-
-      const tx =
-        res.data?.transfert?.tx_hash ||
-        res.data?.tx_hash ||
-        null;
-
-      if (tx) setTxHash(tx);
-
-      alert("✅ Réception validée avec succès");
+      alert("Réception validée");
 
       setTimeout(() => {
         router.push("/cooperative/dashboard");
-      }, 1200);
+      }, 1000);
+
     } catch (err: any) {
-      console.error("❌ ERREUR TRANSFERT:", err);
-
-      const data = err.response?.data;
-
-      const message =
-        data?.error ||
-        JSON.stringify(data?.details) ||
-        data?.detail ||
-        "Erreur serveur inconnue";
-
-      alert(`❌ Échec : ${message}`);
+      alert(err.response?.data?.error || "Erreur serveur");
     } finally {
       setLoading(false);
     }
   };
 
-  // =========================
-  // UI
-  // =========================
   return (
-    <div className="p-6 min-h-screen bg-[#f6f1e7] text-gray-800">
+    <div className="min-h-screen bg-[#f6f1e7] p-6">
       <div className="max-w-2xl mx-auto">
 
-        <button
-          onClick={() => router.back()}
-          className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-6 hover:text-gray-600"
-        >
-          ← Retour
-        </button>
-
-        <h1 className="text-2xl font-black mb-6 text-[#5c3a21]">
-          Lot #{String(lot.id).slice(0, 8)}
+        <h1 className="text-xl font-black mb-6">
+          Validation LOT #{String(lot.id).slice(0, 8)}
         </h1>
 
-        {/* ================= DATA ================= */}
-        <div className="bg-white p-6 rounded-2xl border mb-6">
-          <p className="font-bold">Producteur :</p>
-          <p>{lot.agriculteur_detail?.username ?? "Inconnu"}</p>
+        {/* INFO */}
+        <div className="bg-white p-5 rounded-xl border mb-4">
+          <p className="font-bold">Agriculteur</p>
+          <p>{lot.agriculteur_detail?.username}</p>
 
-          <p className="font-bold mt-3">Poids déclaré :</p>
+          <p className="font-bold mt-3">Poids déclaré</p>
           <p className="text-blue-600 font-bold">{poidsDeclare} kg</p>
         </div>
 
-        {/* ================= FORM ================= */}
-        <div className="bg-white p-6 rounded-2xl border">
+        {/* FORM */}
+        <div className="bg-white p-5 rounded-xl border">
 
-          <label className="text-xs font-bold uppercase text-gray-500">
-            Poids vérifié
-          </label>
+          <label className="text-xs font-bold">Poids vérifié</label>
 
           <input
             type="number"
+            className="w-full border p-3 rounded mt-2"
             value={poidsVerifie}
             onChange={(e) => setPoidsVerifie(e.target.value)}
-            className="w-full mt-2 p-3 border rounded-lg"
-            placeholder="Entrer poids réel"
           />
 
-          {/* ALERT */}
-          {variation > 0.05 && (
-            <div className="mt-3 p-3 bg-red-50 text-red-600 text-xs rounded">
-              ⚠️ Écart important détecté ({(variation * 100).toFixed(1)}%)
+          {ecart > 8 && (
+            <div className="mt-3 bg-red-50 text-red-600 p-2 text-xs rounded">
+              ⚠ Écart critique ({ecart} kg)
             </div>
           )}
 
-          {/* BUTTON */}
           <button
             onClick={handleValider}
             disabled={loading}
-            className="w-full mt-5 bg-[#5c3a21] text-white py-3 rounded-lg font-bold disabled:opacity-50"
+            className="w-full mt-4 bg-[#5c3a21] text-white py-3 rounded font-bold"
           >
-            {loading ? "Validation..." : "Certifier réception"}
+            {loading ? "Validation..." : "Valider réception"}
           </button>
 
-          {/* TX */}
           {txHash && (
-            <p className="mt-4 text-green-600 text-xs break-all">
+            <p className="text-green-600 text-xs mt-3 break-all">
               TX: {txHash}
             </p>
           )}
@@ -181,4 +112,3 @@ export default function LotDetail() {
     </div>
   );
 }
-

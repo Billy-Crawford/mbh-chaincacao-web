@@ -21,3 +21,4 @@ export const useLot = (id: string) => {
     enabled: !!id, // N'exécute la requête que si l'ID existe
   });
 };
+
