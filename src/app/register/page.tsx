@@ -1,3 +1,4 @@
+// src/app/register/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -148,6 +149,7 @@ export default function RegisterPage() {
               onChange={handleChange}
             >
               <option value="cooperative">Coopérative (Collecte)</option>
+              <option value="transformateur">Transformateur (Traitement)</option>
               <option value="exportateur">Exportateur (Export)</option>
             </select>
           </div>

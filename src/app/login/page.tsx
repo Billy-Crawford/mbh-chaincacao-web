@@ -1,3 +1,4 @@
+// src/app/register/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -26,8 +27,9 @@ export default function LoginPage() {
         router.push("/exportateur/dashboard");
       } else if (userRole === "cooperative") {
         router.push("/cooperative/dashboard");
+      } else if (userRole === "transformateur") {
+        router.push("/transformateur/dashboard");
       } else {
-        console.error("Rôle reçu inattendu:", userRole);
         setError("Rôle utilisateur non reconnu.");
       }
     } catch (err: any) {
