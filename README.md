@@ -1,37 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ChainCacao Web
 
-## Getting Started
+Plateforme de traçabilité agricole (Cacao / Café)
 
-First, run the development server:
+1. Description
 
-```bash
+ChainCacao est une application web permettant de suivre et de vérifier la traçabilité des produits agricoles, en particulier le cacao et le café, depuis leur production jusqu’à leur exportation.
+
+Le système repose sur une architecture multi-acteurs et simule une logique inspirée de la blockchain afin de garantir :
+
+la transparence
+l’intégrité des données
+la conformité réglementaire (EUDR)
+2. Fonctionnalités principales
+Gestion des utilisateurs
+Inscription avec rôles :
+Coopérative
+Transformateur
+Exportateur
+Authentification sécurisée
+Gestion des lots
+Création de lots par les agriculteurs (via backend)
+Consultation des lots par rôle
+Affichage des détails (poids, culture, GPS)
+Flux de traçabilité
+Réception des lots (coopérative)
+Vérification du poids
+Transfert vers transformateur
+Traitement et mise à jour
+Transfert vers exportateur
+Validation finale
+Historique (logique blockchain)
+Enregistrement de chaque étape
+Horodatage des actions
+Suivi complet du cycle de vie du lot
+Vérification publique
+Recherche par identifiant de lot
+Affichage :
+historique complet
+acteurs impliqués
+statut de conformité
+Interface accessible sans authentification
+3. Technologies utilisées
+Frontend
+Next.js (App Router)
+TypeScript
+Tailwind CSS
+Backend
+Django REST Framework
+PostgreSQL
+Communication
+API REST (JSON)
+Authentification par token
+4. Structure du projet
+src/
+ ├── app/
+ │   ├── cooperative/
+ │   ├── transformateur/
+ │   ├── exportateur/
+ │   ├── login/
+ │   ├── register/
+ │   └── verify/
+ ├── hooks/
+ ├── services/
+ ├── lib/
+ └── components/
+5. Installation
+Prérequis
+Node.js >= 18
+npm ou yarn
+Étapes
+# Cloner le projet
+git clone https://github.com/ton-repo/chaincacao-web.git
+
+# Aller dans le dossier
+cd chaincacao-web
+
+# Installer les dépendances
+npm install
+
+# Configurer les variables d'environnement
+cp .env.example .env
+
+Dans .env :
+
+NEXT_PUBLIC_API_URL=http://localhost:8000
+Lancer le projet
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Application disponible sur :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
+6. Utilisation
+Connexion par rôle
+Coopérative → /cooperative/dashboard
+Transformateur → /transformateur/dashboard
+Exportateur → /exportateur/dashboard
+Vérification publique
+/verify
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Permet de consulter l’historique d’un lot via son identifiant.
 
-## Learn More
+7. Fonctionnement global
+Création d’un lot
+Réception par la coopérative
+Transfert vers transformateur
+Traitement du lot
+Envoi à l’exportateur
+Certification
+Vérification publique
+8. Améliorations futures
+Carte interactive (Google Maps)
+Notifications en temps réel
+9. Auteur
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# mbh-chaincacao-web
+Projet réalisé dans le cadre d’un hackathon / projet académique.
