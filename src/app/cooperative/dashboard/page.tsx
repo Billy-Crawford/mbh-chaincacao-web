@@ -38,23 +38,6 @@ export default function CoopDashboard() {
 }, []);
 
 
-//   useEffect(() => {
-//     const fetchTransformateurs = async () => {
-//       try {
-//         const res = await fetch(
-//           `${process.env.NEXT_PUBLIC_API_URL}/api/users/?role=transformateur`,
-//         );
-//         if (!res.ok) throw new Error("Erreur fetch transformateurs");
-//         const data = await res.json();
-//         setTransformateurs(Array.isArray(data) ? data : []);
-//       } catch (err) {
-//         console.error("Impossible de charger les transformateurs", err);
-//       }
-//     };
-
-//     fetchTransformateurs();
-//   }, []);
-
   // ================================
   // LOGIQUE DE TRANSFERT
   // ================================
@@ -77,37 +60,6 @@ export default function CoopDashboard() {
     alert("Erreur lors de l'envoi du lot");
   }
 };
-
-//   const handleTransfer = async (lotId: number) => {
-//     try {
-//       const res = await fetch(
-//         `${process.env.NEXT_PUBLIC_API_URL}/api/transferts/`,
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             lot: lotId,
-//             destinataire: Number(form.destinataire),
-//             etape: "cooperative_transformateur",
-//             poids_verifie: Number(form.poids_verifie),
-//             notes: form.notes,
-//           }),
-//         },
-//       );
-
-//       if (!res.ok) throw new Error("Erreur lors du transfert");
-
-//       setForm({ poids_verifie: "", notes: "", destinataire: "" });
-//       setOpenTransfer(false);
-//       alert("Lot envoyé au transformateur avec succès !");
-//       window.location.reload();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Erreur lors de l'envoi du lot");
-//     }
-//   };
 
   if (isLoading)
     return (

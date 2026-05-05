@@ -1,3 +1,4 @@
+// src/components/AuthGuard.tsx
 "use client";
 
 import { useEffect, useState } from "react";
