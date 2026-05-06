@@ -2,11 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import Cookies from "js-cookie";
 
 export default function ExportComptePage() {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -21,6 +24,12 @@ export default function ExportComptePage() {
     };
     fetchProfile();
   }, []);
+
+  const handleDeconnexion = () => {
+    Cookies.remove("access_token");
+    Cookies.remove("refresh_token");
+    router.push("/login");
+  };
 
   if (isLoading)
     return (
@@ -62,6 +71,15 @@ export default function ExportComptePage() {
           <Row label="Village" value={user.village || "—"} />
           <Row label="Région" value={user.region || "—"} />
           <Row label="Rôle" value={user.role} />
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-gray-50">
+          <button
+            onClick={handleDeconnexion}
+            className="px-6 py-3 border border-red-100 text-red-500 rounded-xl text-xs font-bold hover:bg-red-50 transition-all"
+          >
+            Se déconnecter
+          </button>
         </div>
       </div>
     </div>
