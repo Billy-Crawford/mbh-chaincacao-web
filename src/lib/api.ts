@@ -3,7 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const api = axios.create({
-  baseURL: "https://mbh-chaincacao-back.onrender.com",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://mbh-chaincacao-back.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },
